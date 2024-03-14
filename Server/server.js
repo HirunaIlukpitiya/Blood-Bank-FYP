@@ -16,6 +16,12 @@ app.use(bodyParser.json());
 
 const url = process.env.Mongo_URL;
 
+const authRoute = require("./Routes/authRoute");
+const protectedRoute = require("./Routes/protectedRoute");
+
+app.use("/auth",authRoute);
+app.use("/protected", protectedRoute);
+
 mongoose.connect(url)
 .then(() => console.log("MongoDB is connected..."))
 .catch((err) => console.log(err));
