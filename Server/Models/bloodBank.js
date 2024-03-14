@@ -1,16 +1,20 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const bloodBankSchema = mongoose.Schema(
     {
-        hospitalName: {
-        type: String,
-        required: true,
-        },
+        // hospitalName: {
+        // type: String,
+        // required: true,
+        // },
         email: {
         type: String,
         required: true,
         },
         regNumber: {
+        type: String,
+        required: true,
+        },
+        password: {
         type: String,
         required: true,
         },

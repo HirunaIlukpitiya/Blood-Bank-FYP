@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const donerSchema = mongoose.Schema(
   {
@@ -7,6 +7,10 @@ const donerSchema = mongoose.Schema(
       required: true,
     },
     email: {
+      type: String,
+      required: true,
+    },
+    password: {
       type: String,
       required: true,
     },
