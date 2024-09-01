@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  daisyui: {
+    themes:["cupcake"],
+  },
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     screens: {
@@ -42,12 +45,13 @@ export default {
       "xs" : ["12px"],
       "2xl": ["16px"],
       "3xl": ["18px"],
-      "4xl": ["32px"],
-      "5xl": ["48px"],
-      "6xl": ["58px"],
+      "4xl": ["22px"],
+      "5xl": ["38px"],
+      "6xl": ["48px"],
     },
   },
   plugins: [
+    require('daisyui'),
     require('tailwindcss-animated'),
     
   ],

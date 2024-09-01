@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  daisyui: {
+    themes: ["cupcake"],
+  },
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     screens: {
@@ -49,6 +52,7 @@ export default {
   },
   plugins: [
     require('tailwindcss-animated'),
+    require('daisyui'),
     
   ],
 };

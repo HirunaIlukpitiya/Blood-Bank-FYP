@@ -12,7 +12,7 @@ const tokenValidate = (req, res, next) =>{
     const secretKey = process.env.JWT_SECRET_KEY;
     try{
         const decoded = jwt.verify(token, secretKey);
-        req.userID == decoded.userID;
+        req.Email == decoded.userEmail;
         next();
     }
     catch(error){

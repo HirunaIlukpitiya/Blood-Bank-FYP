@@ -1,0 +1,60 @@
+import React, { useEffect, useState } from "react";
+import DashNav from "./DashNav";
+import DashSideBar from "./sideBar";
+import morning from "../assets/image/morning.png";
+import afternoon from "../assets/image/afternoon.png";
+import evening from "../assets/image/evening.png";
+import night from "../assets/image/night.png";
+import { Outlet, useLocation } from "react-router-dom";
+
+function DashBoardLayout() {
+  const userName = "Hiruna";
+  const [sideBarToggled, setSideBarToggled] = useState(false);
+  const [greetingMsg, setGreetingMsg] = useState("");
+  const [imgSrc, setImgSrc] = useState("");
+  const location = useLocation();
+  useEffect(() => {
+    const date = new Date();
+    const hours = date.getHours();
+    if (hours >= 5 && hours < 12) {
+      setGreetingMsg(` Good Morning, ${userName}`);
+      setImgSrc(morning);
+    } else if (hours >= 12 && hours < 17) {
+      setGreetingMsg(` Good Afternoon, ${userName}`);
+      setImgSrc(afternoon);
+    } else if (hours >= 17 && hours < 21) {
+      setGreetingMsg(` Good Evening, ${userName}`);
+      setImgSrc(evening);
+    } else {
+      setGreetingMsg(` Hello, ${userName}! You're up late.`);
+      setImgSrc(night);
+    }
+  }, []);
+
+  const handleSideBarToggle = () => {
+    setSideBarToggled(!sideBarToggled);
+  };
+
+  return (
+    <div className="relative h-screen w-full font-poppins text-Ash">
+      {sideBarToggled && (
+        <div className="absolute z-50 w-full">
+          <DashSideBar sideBarToggled={handleSideBarToggle} />
+        </div>
+      )}
+      <div className="px-5">
+        <DashNav sideBarToggled={handleSideBarToggle} />
+        <div className={`${location.pathname.includes("home") ? "" : "hidden pb-5"} md:hidden flex justify-start items-center`}>
+          <img src={imgSrc} className="w-10" />
+          <p className="text-2xl">&nbsp;{greetingMsg}</p>
+        </div>
+        <div className="pt-5">
+        <Outlet />
+        </div>
+      </div>
+      <div></div>
+    </div>
+  );
+}
+
+export default DashBoardLayout;
