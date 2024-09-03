@@ -21,7 +21,7 @@ function DashNav(props) {
     hideLogout();
   };
   return (
-    <div className="dash-nav py-5 w-full">
+    <div className="dash-nav p-5 w-full">
       <Logout confirmFunction={confirmLogout} cancelFunction={cancelLogout}/>
       <div className="flex w-full justify-between space-x-3">
         <div
@@ -32,6 +32,24 @@ function DashNav(props) {
         </div>
         <div className="w-full">
           <SearchBar />
+        </div>
+        <div>
+        <div className="dropdown dropdown-end">
+        <div
+        tabIndex={0}
+            className="bg-Ash bg-opacity-30 flex justify-center items-center p-2 border-2 rounded-full"
+          >
+            <FeatherIcon icon="globe" className="text-bloodred3" />
+          </div>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu bg-white rounded-box z-[10] w-25 p-2 shadow-lg"
+          >
+            <li className="animate-fade-up"> <button>English</button></li>
+            <li className="animate-fade-up animate-delay-100"> <button>Sinhala</button></li>
+            <li className="animate-fade-up animate-delay-200"> <button>Tamil</button></li>
+            </ul>
+          </div>
         </div>
         <div className="dropdown dropdown-end">
           <div

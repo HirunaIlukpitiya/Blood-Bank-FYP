@@ -27,6 +27,8 @@ function Login() {
             toast.success(response.data.message, {
                 position: "bottom-right"
             });
+            localStorage.setItem("token", response.data.token);
+            localStorage.setItem("user", JSON.stringify(response.data.user));
             setTimeout(() => {
                 navigate("/user/dash");
             }, 1000);

@@ -22,6 +22,14 @@ const donationDataSchema = mongoose.Schema(
 
 const donationRequestSchema = mongoose.Schema(
   {
+    Email : {
+      type: String,
+      required: true,
+    },
+    Title: {
+      type: String,
+      required: true,
+    },
     RequestDate: {
       type: String,
       required: true,
@@ -30,7 +38,7 @@ const donationRequestSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    RequestBloodType: {
+    RequestBloodGroup: {
       type: String,
       required: true,
     },
@@ -38,16 +46,6 @@ const donationRequestSchema = mongoose.Schema(
       type: String,
       required: true
     },
-    RequestStatus: {
-      default: "Pending",
-      type: String,
-      required: true
-    },
-    RequestPersonId: {
-      type: String,
-      required: true
-    }
-
   },
   {
     timestamps: true,
@@ -63,6 +61,43 @@ const donationResponseSchema = mongoose.Schema(
     Name:{
       type: String,
       required: true,
+    },
+    Title: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const createdRequestSchema = mongoose.Schema(
+  {
+    Title: {
+      type: String,
+      required: true,
+    },
+    RequestDate: {
+      type: String,
+      required: true,
+    },
+    RequestLocation: {
+      type: String,
+      required: true,
+    },
+    RequestBloodGroup: {
+      type: String,
+      required: true,
+    },
+    RequestMessage: {
+      type: String,
+      required: true
+    },
+    RequestStatus: {
+      default: "Pending",
+      type: String,
+      required: true
     },
   },
   {
@@ -80,7 +115,15 @@ const donerSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    DOB: {
+      type: String,
+      required: true,
+    },
     Email: {
+      type: String,
+      required: true,
+    },
+    Gender: {
       type: String,
       required: true,
     },
@@ -136,6 +179,10 @@ const donerSchema = mongoose.Schema(
       type: [donationResponseSchema],
       required: false,
     },
+    CreatedRequest: {
+      type: [createdRequestSchema],
+      required: false,
+    },
     DonerStatus: {
       type: String,
       required: false,
@@ -145,6 +192,20 @@ const donerSchema = mongoose.Schema(
       type: Boolean,
       required: false,
     },
+    Image: {
+      type: String,
+      required: true,
+    },
+    QRcode: {
+      type: String,
+      required: true,
+    },
+    Frequency: {
+      default: "4",
+      type: String,
+      required: false,
+    },
+
   },
   {
     timestamps: true,

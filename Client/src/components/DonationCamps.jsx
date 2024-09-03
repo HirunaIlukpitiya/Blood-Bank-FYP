@@ -3,7 +3,8 @@
 function DonationCamps() {
     return (
         <div>
-            <h1>Donation Camps</h1>
+            <h1 className="">Donation Camps</h1>
+            
         </div>
     );
 }

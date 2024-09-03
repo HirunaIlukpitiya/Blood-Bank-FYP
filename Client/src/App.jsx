@@ -19,6 +19,7 @@ import { OverlayProvider } from './context/overlayContext'
 import Delete from './context/overlays/Delete'
 import Logout from './context/overlays/Logout'
 import Spinner from './context/overlays/Spinner'
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
 
@@ -27,7 +28,7 @@ function App() {
     <Spinner/>
     <Routes>
       <Route path="/" element = {<Home />}/>
-      <Route path="/user/:email/activate" element = {<Register/>}/>
+      <Route path="/activate/:Email/:token" element = {<Register/>}/>
       <Route path='/user/login' element = {<Login/>}/>
       <Route path='/user/dash' element = {<DashBoardLayout/>}>
         <Route index element = {<Navigate to="home"/>}/>

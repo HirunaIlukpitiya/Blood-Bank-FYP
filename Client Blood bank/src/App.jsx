@@ -16,6 +16,12 @@ import UserManage from './components/UserManage'
 import Statistic from './components/Statistic'
 import RequestBlood from './components/RequestBlood'
 import IssueBlood from './components/IssueBlood'
+import DonerRegister from './components/DonorRegister'
+import DonerApprove from './components/DonorApprove'
+import DonorProfile from './components/DonorProfile'
+import AddUser from './components/AddUser'
+import Users from './components/Users'
+import Logout from './context/overlays/Logout'
 
 function App() {
 
@@ -31,9 +37,18 @@ function App() {
       <Route path="/user/dash" element={<DashLayout />} >
         <Route index element={<Navigate to = 'stocks'/>}/>
         <Route path='stocks' element={<Stockmoniter/>}/>
-        <Route path='donor' element={<DonorManage/>}/>
+        <Route path='donor' element={<DonorManage/>}>
+          <Route index element={<Navigate to = 'register'/>}/>
+          <Route path='register' element={<DonerRegister/>}/>
+          <Route path='application' element={<DonerApprove/>}/>
+          <Route path='profile' element={<DonorProfile/>}/>
+        </Route>
         <Route path='donorcamps' element={<DonationCamp/>}/>
-        <Route path='user' element={<UserManage/>}/>
+        <Route path='manageuser' element={<UserManage/>}>
+          <Route index element={<Navigate to = 'adduser'/>}/>
+          <Route path='adduser' element={<AddUser/>}/>
+          <Route path='view' element={<Users/>}/>
+        </Route>
         <Route path="stat" element={<Statistic/>}/>
         <Route path='request' element={<RequestBlood/>}/>
         <Route path='issueblood' element={<IssueBlood/>}/>

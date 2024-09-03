@@ -5,7 +5,7 @@ function DashHome() {
     
   return (
     <>
-      <div className="w-full">
+      <div className="w-full pt-5">
         <section className="w-full grid grid-cols-2 gap-5">
           <div className="">
             <div className="bg-white  drop-shadow-lg rounded-xl p-2">

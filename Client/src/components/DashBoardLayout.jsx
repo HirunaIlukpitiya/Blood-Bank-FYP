@@ -36,19 +36,21 @@ function DashBoardLayout() {
   };
 
   return (
-    <div className="relative h-screen w-full font-poppins text-Ash">
+    <div className="relative h-screen w-full font-poppins text-Ash flex">
       {sideBarToggled && (
         <div className="absolute z-50 w-full">
           <DashSideBar sideBarToggled={handleSideBarToggle} />
         </div>
       )}
-      <div className="px-5">
+      <div className="flex flex-col w-full">
+        <div className="sticky top-0 z-10">
         <DashNav sideBarToggled={handleSideBarToggle} />
-        <div className={`${location.pathname.includes("home") ? "" : "hidden pb-5"} md:hidden flex justify-start items-center`}>
+        </div>
+        <div className={`${location.pathname.includes("home") ? "" : "hidden pb-5"} px-5 md:hidden flex justify-start items-center`}>
           <img src={imgSrc} className="w-10" />
           <p className="text-2xl">&nbsp;{greetingMsg}</p>
         </div>
-        <div className="pt-5">
+        <div className="px-5 flex-grow overflow-y-auto">
         <Outlet />
         </div>
       </div>

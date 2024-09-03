@@ -17,7 +17,7 @@ function Activate() {
   useEffect(() => {
     showSpinner();
     axios
-      .get(`http://localhost:5000/auth/activationValidate/${Email}/${token}`)
+      .get(`http://localhost:5000/user/userActivationValidate/${Email}/${token}`)
       .then((response) => {
         console.log(response);
         setFormData({ Email: Email });
@@ -43,14 +43,14 @@ function Activate() {
     console.log(formData);
     showSpinner();
     axios
-      .post("http://localhost:5000/auth/activateAccount", formData)
+      .post("http://localhost:5000/user/userActivate", formData)
       .then((response) => {
         console.log(response);
         toast.success(response.data.message, {
             position: "bottom-right"
         });
         setTimeout(() => {
-            navigate("/user/dash");
+            navigate("/");
         }, 500);
       })
       .catch((err) => {

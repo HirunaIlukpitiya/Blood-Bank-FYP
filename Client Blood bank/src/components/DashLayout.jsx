@@ -40,14 +40,14 @@ function DashLayout() {
         <div className="w-1/6">
           <SideBar sideBarToggled={handleSideBarToggle} />
         </div>
-      <div className="w-5/6">
+      <div className="w-5/6 flex flex-col">
       <div className="px-5 h-fit drop-shadow">
         <DashNav className="" sideBarToggled={handleSideBarToggle} imgSrc={imgSrc} greetingMsg={greetingMsg}/>
         </div>
         <hr className=""/>
-        <>
+        <div className="flex-grow overflow-y-auto">
         <Outlet />
-        </>
+        </div>
       </div>
       <div></div>
     </div>

@@ -15,7 +15,11 @@ const url = process.env.MONGO_URL;
 
 const authRoute = require("./Routes/authRoute");
 const protectedRoute = require("./Routes/protectedRoute");
+const userRoute = require("./Routes/userRoute");
+const donorRoute = require("./Routes/donorRoute");
 
+app.use("/donor",donorRoute);
+app.use("/user",userRoute);
 app.use("/auth",authRoute);
 app.use("/protected", protectedRoute);
 

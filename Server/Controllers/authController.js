@@ -1,6 +1,7 @@
 const Doner = require("../Models/doner");
 const BloodBank = require("../Models/bloodBank");
 const bcrypt = require("bcrypt");
+const QRCode = require('qrcode');
 const jwt = require("jsonwebtoken");
 const JWTcreate = require("../Config/jwtService");
 const activationEmail = require("../service/activationEmailService");
@@ -11,16 +12,41 @@ const User = require("../Models/user");
 
 const authController = {
   donerRegister: async (req, res) => {
-    const { fullName, email } = req.body;
+    const { FirstName, LastName, Gender, DOB, NIC, Image, BloodGroup, Phone, Email } =
+      req.body;
     try {
-      let doner = await Doner.findOne({ email });
+      let doner = await Doner.findOne({ NIC });
       if (doner) {
         return res.status(400).json({ msg: "User Already Exists" });
       }
+
+      const qrCodeData = JSON.stringify({NIC: NIC, Email: Email});
+      const QRcode = await QRCode.toDataURL(qrCodeData);
+
       await new Doner({
-        fullName,
-        email,
+        FirstName,
+        LastName,
+        Gender,
+        DOB,
+        NIC,
+        Image,
+        BloodGroup,
+        Phone,
+        Email,
+        QRcode
       }).save();
+
+      const token = activationTokenGenerator(Email, "15m");
+      await activationEmail({
+        to: Email,
+        subject: "Account Activation",
+        message: `Click on the link to activate your account http://localhost:5173/activate/${Email}/${token}`,
+      });    
+      console.log(`http://localhost:5173/activate/${Email}/${token}`);
+
+      return res
+        .status(200)
+        .json({ message: "Doner Registration Successfull" });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Doner Registration Failed" });
@@ -28,20 +54,22 @@ const authController = {
   },
 
   donerLogin: async (req, res) => {
-    const { email, password } = req.body;
+    const { Email, Password } = req.body;
     try {
-      let doner = await Doner.findOne({ email });
+      let doner = await Doner.findOne({ Email });
       if (!doner) {
         return res.status(400).json({ message: "Doner not found" });
       }
 
-      const passwordMatch = await bcrypt.compare(password, doner.password);
+      const passwordMatch = await bcrypt.compare(Password, doner.Password);
       if (!passwordMatch) {
-       return res.status(400).json({ message: "Invalid Credential" });
+        return res.status(400).json({ message: "Invalid Credential" });
       }
 
       const token = tokenGenerator(doner.email);
-      return res.status(200).json({ message: "User Loggin successfull", token: token });
+      return res
+        .status(200)
+        .json({ message: "User Loggin successfull", token: token, donor: doner });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Doner SignIn Failed" });
@@ -65,12 +93,13 @@ const authController = {
           RoleId,
         }).save();
 
-        const token = activationTokenGenerator(Email);
+        const token = activationTokenGenerator(Email, "15m");
         await activationEmail({
           to: Email,
           subject: "Account Activation",
           message: `Click on the link to activate your account http://localhost:5174/activate/${Email}/${token}`,
         });
+        console.log(`http://localhost:5174/activate/${Email}/${token}`);
 
         return res.status(200).json({
           message:
@@ -103,19 +132,43 @@ const authController = {
       const token = JWTcreate.tokenGenerator(userExsist._id);
       return res
         .status(200)
-        .json({ message: "User loggin successfull", token: token });
+        .json({ message: "User loggin successfull", token: token, user: userExsist});
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "SignIn Failed" });
     }
   },
 
+  donorActivationTokenValidate: async (req, res) => {
+    const { Email, token } = req.params;
+    try {
+      let user = await Doner.findOne({ Email });
+      if (!user) {
+        return res.status(400).json({ message: "Invalid Activation URL" });
+      } else if (user.Activate) {
+        return res.status(400).json({ message: "Account Already Activated" });
+      } else {
+        const secretKey = process.env.JWT_SECRET_KEY;
+        try {
+          const decoded = jwt.verify(token, secretKey);
+          req.Email == decoded.userEmail;
+          return res.status(200).json({ message: "Valid Token" });
+        } catch (error) {
+          return res.status(401).json({ Message: "Invalid Token" });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Account Activation Failed" });
+    }
+  },
+
   activationTokenValidate: async (req, res) => {
     const { Email, token } = req.params;
     try {
-      const user = await BloodBank.findOne({ Email });
+      let user = await BloodBank.findOne({ Email });
       if (!user) {
-        const user = await User.findOne({ Email });
+        user = await User.findOne({ Email });
         if (!user) {
           return res.status(400).json({ message: "Invalid Activation URL" });
         }
@@ -137,11 +190,10 @@ const authController = {
     }
   },
 
-  activateAccount: async (req, res) => {
+  donorActivateAccount: async (req, res) => {
     const { Email, Password, Cfpassword } = req.body;
     try {
-      const user = await BloodBank.findOne({ Email });
-
+      let user = await Doner.findOne({ Email });
       if (!user) {
         return res.status(400).json({ message: "Account not Found !" });
       }
@@ -151,14 +203,46 @@ const authController = {
       if (Password !== Cfpassword) {
         return res.status(400).json({ message: "Password Mismatch" });
       }
-      
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(Password, salt);
-        user.Password = hashedPassword;
-        user.ActiveStatus = true;
 
-        await user.save();
-        return res.status(200).json({ message: "Account Activated Successfully" });
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(Password, salt);
+      user.Password = hashedPassword;
+      user.ActiveStatus = true;
+
+      await user.save();
+      return res
+        .status(200)
+        .json({ message: "Account Activated Successfully" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Account Activation Failed" });
+    }
+  },
+
+  activateAccount: async (req, res) => {
+    const { Email, Password, Cfpassword } = req.body;
+    try {
+      let user = await BloodBank.findOne({ Email });
+
+      if (!user) {
+          return res.status(400).json({ message: "Account not Found !" });
+      }
+      if (user.Activate) {
+        return res.status(400).json({ message: "Account Already Activated" });
+      }
+      if (Password !== Cfpassword) {
+        return res.status(400).json({ message: "Password Mismatch" });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(Password, salt);
+      user.Password = hashedPassword;
+      user.ActiveStatus = true;
+
+      await user.save();
+      return res
+        .status(200)
+        .json({ message: "Account Activated Successfully" });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Account Activation Failed" });
