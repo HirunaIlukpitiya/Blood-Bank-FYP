@@ -26,10 +26,10 @@ function Login() {
       });
       console.log(res.data);
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.donor));
+      localStorage.setItem("userId", JSON.stringify(res.data.donorId));
       setTimeout(() => {
         navigate("/user/dash");
-      }, 200);
+      }, 100);
     })
     .catch(err => {
       console.log(err);

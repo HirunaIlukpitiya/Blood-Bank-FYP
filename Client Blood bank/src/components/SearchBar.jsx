@@ -3,6 +3,7 @@ import FeatherIcon from "feather-icons-react";
 function SearchBar(props) {
   const handleSearch = props.handleSearch;
   const handleSubmit = props.handleSubmit;
+  const placeholderText = props.placeholderText;
   return (
     <div className="text-Ash font-poppins w-full">
       <form onSubmit={handleSubmit}>
@@ -15,7 +16,7 @@ function SearchBar(props) {
           </button>
           <input
             type="text"
-            placeholder="Search..."
+            placeholder= {placeholderText ? placeholderText : "Search . . ."}
             className="h-12 border-2 rounded-full w-full px-3 drop-shadow-none"
             onChange={handleSearch}
           />

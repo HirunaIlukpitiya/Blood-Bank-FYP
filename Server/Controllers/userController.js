@@ -1,5 +1,5 @@
 const User = require("../Models/user");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const activationEmail = require("../service/activationEmailService");
 const { tokenGenerator } = require("../Config/jwtService");
 const { activationTokenGenerator } = require("../Config/activationJWTservice");
@@ -20,7 +20,7 @@ const UserController = {
       RegNumber,
     } = req.body;
     try {
-      let user = await User.findOne({ Email });
+      let user = await User.findOne({ NIC });
       if (user) {
         return res.status(400).json({ message: "User already exists" });
       }

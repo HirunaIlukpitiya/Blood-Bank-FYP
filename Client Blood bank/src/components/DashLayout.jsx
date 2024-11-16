@@ -41,7 +41,7 @@ function DashLayout() {
           <SideBar sideBarToggled={handleSideBarToggle} />
         </div>
       <div className="w-5/6 flex flex-col">
-      <div className="px-5 h-fit drop-shadow">
+      <div className="sticky top-0 z-10">
         <DashNav className="" sideBarToggled={handleSideBarToggle} imgSrc={imgSrc} greetingMsg={greetingMsg}/>
         </div>
         <hr className=""/>

@@ -8,7 +8,6 @@ import night from "../assets/image/night.png";
 import { Outlet, useLocation } from "react-router-dom";
 
 function DashBoardLayout() {
-  const userName = "Hiruna";
   const [sideBarToggled, setSideBarToggled] = useState(false);
   const [greetingMsg, setGreetingMsg] = useState("");
   const [imgSrc, setImgSrc] = useState("");
@@ -17,16 +16,16 @@ function DashBoardLayout() {
     const date = new Date();
     const hours = date.getHours();
     if (hours >= 5 && hours < 12) {
-      setGreetingMsg(` Good Morning, ${userName}`);
+      setGreetingMsg(` Good Morning !`);
       setImgSrc(morning);
     } else if (hours >= 12 && hours < 17) {
-      setGreetingMsg(` Good Afternoon, ${userName}`);
+      setGreetingMsg(` Good Afternoon !`);
       setImgSrc(afternoon);
     } else if (hours >= 17 && hours < 21) {
-      setGreetingMsg(` Good Evening, ${userName}`);
+      setGreetingMsg(` Good Evening !`);
       setImgSrc(evening);
     } else {
-      setGreetingMsg(` Hello, ${userName}! You're up late.`);
+      setGreetingMsg(` Hello ! You're up late.`);
       setImgSrc(night);
     }
   }, []);

@@ -1,6 +1,6 @@
-const Doner = require("../Models/doner");
+const Doner = require("../Models/donor");
 const BloodBank = require("../Models/bloodBank");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const QRCode = require('qrcode');
 const jwt = require("jsonwebtoken");
 const JWTcreate = require("../Config/jwtService");
@@ -56,7 +56,7 @@ const authController = {
   donerLogin: async (req, res) => {
     const { Email, Password } = req.body;
     try {
-      let doner = await Doner.findOne({ Email });
+      let doner = await Doner.findOne({ Email: Email });
       if (!doner) {
         return res.status(400).json({ message: "Doner not found" });
       }
@@ -69,7 +69,7 @@ const authController = {
       const token = tokenGenerator(doner.email);
       return res
         .status(200)
-        .json({ message: "User Loggin successfull", token: token, donor: doner });
+        .json({ message: "User Loggin successfull", token: token, donorId: doner._id });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Doner SignIn Failed" });

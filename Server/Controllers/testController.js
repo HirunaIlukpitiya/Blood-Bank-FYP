@@ -1,4 +1,4 @@
-const Doner = require("../Models/doner");
+const Doner = require("../Models/donor");
 const BloodBank = require("../Models/bloodBank");
 
 const testController = {

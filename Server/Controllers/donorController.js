@@ -1,6 +1,7 @@
 const { get } = require("mongoose");
-const Donor = require("../Models/doner");
+const Donor = require("../Models/donor");
 const DonorApplication = require("../models/donorApplications");
+const { eligibilityCal, dateToNextDonate } = require("../utils");
 
 const donorController = {
   getDonors: async (req, res) => {
@@ -15,7 +16,13 @@ const donorController = {
 
   getDonor: async (req, res) => {
     try {
-      const donor = await Donor.findById(req.params.Email);
+      let donor;
+      if (!req.params.id) {
+        donor = await Donor.findOne({Email: req.params.Email});
+      } else {
+        donor = await Donor.findById(req.params.id)
+        console.log(donor)
+      }
       return res.status(200).json(donor);
     } catch (error) {
       console.log(error);
@@ -23,11 +30,37 @@ const donorController = {
     }
   },
 
+  getDonorDashDetails : async (req, res) => {
+    try {
+      const donor = await Donor.findById(req.params.id);
+
+      const unreadCount = donor.DonationRequest.filter((request) => request.status === "unread").length;
+      const dateLeft = dateToNextDonate(donor.LastDonationDate, donor.Frequency);
+      const details = {
+        DonationRequest : unreadCount,
+        DateToNextDonate : dateLeft,
+        DonationData : donor.DonationData.length,
+        DonorStatus : donor.DonorStatus,
+        Frequency : donor.Frequency,
+        FirstName : donor.FirstName,
+        BloodGroup : donor.BloodGroup,
+      }
+      return res.status(200).json(details);
+    } catch {
+      console.log(error);
+      return res.status(500).json({message: "Donor Dashboard Details not found"});
+    }
+  },
+
   getDonorApplication: async (req, res) => {
     try {
-      const donorApplication = await DonorApplication.findById(
-        req.params.Email
-      );
+      let donorApplication = [];
+      if (req.params.Email) {
+        donorApplication = await DonorApplication.findOne({Email : req.params.Email});
+      } else {
+        donorApplication = await DonorApplication.findById(req.params.id);
+      }
+      
       return res.status(200).json(donorApplication);
     } catch (error) {
       console.log(error);
@@ -37,7 +70,7 @@ const donorController = {
   addDonorApplication: async (req, res) => {
     try {
       const {
-        Email,
+        Id,
         status,
         step1q1,
         step1q2,
@@ -64,7 +97,7 @@ const donorController = {
         step6q3,
       } = req.body;
       const donorApplication = new DonorApplication({
-        Email,
+        Id,
         step1q1,
         step1q2,
         step1q3,
@@ -100,15 +133,14 @@ const donorController = {
 
   findDonor: async (req, res) => {
     try {
-        const {Email, Title, RequestLocation, RequestDate, RequestBloodGroup, RequestMessage} = req.body;
+        const {Id, Title, RequestLocation, RequestDate, RequestBloodGroup, RequestMessage} = req.body;
         const donors = await Donor.find({ BloodGroup: RequestBloodGroup });
         if(donors.length === 0){
             return res.status(400).json({message: "No donors found"});
         }
-        console.log(donors);
 
         const donationRequest = {
-            Email,
+            Id,
             Title,
             RequestLocation,
             RequestDate,
@@ -116,17 +148,32 @@ const donorController = {
             RequestMessage,
         };
 
+        const createdRequest = {
+            Title,
+            RequestDate,
+            RequestLocation,
+            RequestBloodGroup,
+            RequestMessage,
+        }
+
+        const reqCreater = await Donor.findById(Id);
+        if(!reqCreater){
+            return res.status(400).json({message: "Creater Profile not found"});
+        }
+        reqCreater.CreatedRequest.push(createdRequest);
+        await reqCreater.save();
+
         for (const donor of donors) {
-            if(donor.Email === Email){
+            const eligibility = eligibilityCal(donor.LastDonationDate, donor.Frequency);
+            console.log(eligibility);
+            if(donor._id = Id){
                 continue;
-            } else {
+            } else if(eligibility) {
             donor.DonationRequest.push(donationRequest);
             await donor.save();
             }
         }
-
         return res.status(200).json({message: "Donation Request Successful"});
-
     }
     catch (error) {
         console.log(error);
@@ -137,8 +184,7 @@ const donorController = {
     getDonationRequest: async (req, res) => {
 
         try {
-            const Email = req.params.Email;
-            const donor = await Donor.findOne({Email});
+            const donor = await Donor.findById(req.params.id);
             const donationRequest = donor.DonationRequest;
             return res.status(200).json(donationRequest);
         } catch (error) {
@@ -146,6 +192,41 @@ const donorController = {
             res.status(500).json({message: "Donation Request not found"});
         }
     },
+
+    getCreatedRequest: async (req, res) => {
+        try {
+            const donor = await Donor.findById(req.params.id);
+            const createdRequest = donor.CreatedRequest;
+            return res.status(200).json(createdRequest);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({message: "Created Request not found"});
+        }
+    },
+
+    getDonationResponse: async (req, res) => {
+        try {
+            const donor = await Donor.findById(req.params.id);
+            const donationResponse = donor.DonationResponse;
+            return res.status(200).json(donationResponse);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({message: "Donation Response not found"});
+        }
+    },
+
+    getDonationData: async (req, res) => {
+        try {
+            const donor = await Donor.findById(req.params.id);
+            const donationData = donor.DonationData;
+            return res.status(200).json(donationData);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({message: "Donation Data not found"});
+        }
+    }
+
+
 };
 
 module.exports = donorController;

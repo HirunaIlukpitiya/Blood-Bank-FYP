@@ -46,6 +46,11 @@ const donationRequestSchema = mongoose.Schema(
       type: String,
       required: true
     },
+    ReadStatus: {
+      default: "unread",
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,
@@ -97,7 +102,7 @@ const createdRequestSchema = mongoose.Schema(
     RequestStatus: {
       default: "Pending",
       type: String,
-      required: true
+      required: false,
     },
   },
   {
@@ -105,7 +110,7 @@ const createdRequestSchema = mongoose.Schema(
   }
 );
 
-const donerSchema = mongoose.Schema(
+const donorSchema = mongoose.Schema(
   {
     FirstName: {
       type: String,
@@ -159,11 +164,8 @@ const donerSchema = mongoose.Schema(
       type: String,
       required: false,
     },
-    DonatedCount: {
-      type: String,
-      required: false,
-    },
     LastDonatedDate: {
+      default: "",
       type: String,
       required: false,
     },
@@ -183,7 +185,8 @@ const donerSchema = mongoose.Schema(
       type: [createdRequestSchema],
       required: false,
     },
-    DonerStatus: {
+    DonorStatus: {
+      default : "Active",
       type: String,
       required: false,
     },
@@ -205,12 +208,11 @@ const donerSchema = mongoose.Schema(
       type: String,
       required: false,
     },
-
   },
   {
     timestamps: true,
   }
 );
 
-const Doner = mongoose.model("Doner", donerSchema);
-module.exports = Doner;
+const Donor = mongoose.model("Donor", donorSchema);
+module.exports = Donor;

@@ -3,18 +3,24 @@ import React, { useEffect, useState } from "react";
 import { useOverlay } from "../context/overlayContext";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import BackButton from "./backButton";
 function DonateBlood() {
   const {showSpinner, hideSpinner} = useOverlay();
-  const Donor = JSON.parse(localStorage.getItem("user")); 
+  const userId = JSON.parse(localStorage.getItem("userId")); 
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    Email: Donor.Email,
+    Id: userId,
     step1q1: "",
     step1q2: "",
     step1q3: "",
     step1q4: "",
     step2q1: "",
-    step2q2: "",
+    step2q2: {
+      heartDisease: false,
+      paralysis: false,
+      diabetes: false,
+      bloodDiseases: false,
+    },
     step2q3: "",
     step2q4: "",
     step2q5: "",
@@ -34,10 +40,6 @@ function DonateBlood() {
     step6q3: "",
   });
 
-  useEffect(() => {
-    setFormData({ Email: Donor.Email });
-  }, [formData.Email]);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -45,14 +47,52 @@ function DonateBlood() {
   
 
   const handleSubmit = () => {
+    if (step == 6 && !(formData.step6q1 && formData.step6q2 && formData.step6q3)) {
+      toast.error("Please fill all fields", {
+        position: "bottom-right",
+      })
+      return;
+    }
     showSpinner();
+    setFormData({...formData, Id : userId})
     console.log(formData);
     axios.post(`http://localhost:5000/donor/addDonorApplication`, formData)
     .then((response) => {
       toast.success(response.data.message, {
         position: "bottom-right",
       });
-      setFormData({});
+      setFormData({
+          Id: userId,
+          step1q1: "",
+          step1q2: "",
+          step1q3: "",
+          step1q4: "",
+          step2q1: "",
+          step2q2: {
+            heartDisease: false,
+            paralysis: false,
+            diabetes: false,
+            bloodDiseases: false,
+          },
+          step2q3: "",
+          step2q4: "",
+          step2q5: "",
+          step2q6: "",
+          step3q1: "",
+          step3q2: "",
+          step4q1: "",
+          step4q2: "",
+          step4q3: "",
+          step4q4: "",
+          step5q1: "",
+          step5q2: "",
+          step5q3: "",
+          step5q4: "",
+          step6q1: "",
+          step6q2: "",
+          step6q3: "",
+        }
+      );
       setStep(1);
     })
     .catch((err) => {
@@ -70,14 +110,59 @@ function DonateBlood() {
     setFormData({});
     setStep(1);
   };
+
+  const handleCheckBoxes = (e) => {
+    setFormData({
+      ...formData,
+      step2q2: {
+        ...formData.step2q2,
+        [e.target.name]: e.target.checked,
+      },
+    });
+    console.log(formData)
+  };
+
+  const handleNext = () => {
+    if (step == 1 && formData.step1q1 == "yes") {
+      formData.step1q1 && formData.step1q2 && formData.step1q3 && formData.step1q4 ? setStep(step + 1) : toast.error("Please fill all fields", {
+        position: "bottom-right",
+      })
+    } else if (step == 1 && formData.step1q1 == "no") {
+      formData.step1q1 && formData.step1q3 && formData.step1q4 ? setStep(step + 1) : toast.error("Please fill all fields", {
+        position: "bottom-right",
+      })
+    }
+
+    if (step == 2) {
+      formData.step2q1 && formData.step2q3 && formData.step2q4 && formData.step2q5 && formData.step2q6 ? setStep(step + 1) : toast.error("Please fill all fields", {
+        position: "bottom-right",
+      })
+    } else if (step == 3) {
+      formData.step3q1 &&  formData.step3q2 ? setStep(step + 1) : toast.error("Please fill all fields", {
+        position: "bottom-right",
+      })
+    } else if (step == 4) {
+      formData.step4q1 && formData.step4q2 && formData.step4q3 && formData.step4q4 ? setStep(step + 1) : toast.error("Please fill all fields", {
+        position: "bottom-right",
+      })
+    } else if (step ==5) {
+      formData.step5q1 && formData.step5q2 && formData.step5q3 && formData.step5q4 ? setStep(step + 1) : toast.error("Please fill all fields", {
+        position: "bottom-right",
+      })
+    }
+  };
+
   return (
-    <div className="px-5 h-full">
+    <div className="h-full">
       <ToastContainer />
-      <h1 className="py-5 text-2xl text-bloodred1">Donor Appliaction</h1>
-      {step != 1 && (<div className="pb-5 flex items-center space-x-3" onClick={()=> setStep(step-1)}>
+      <div className="flex items-center">         
+      <span><BackButton/></span><span className="pb-2 pl-3 text-4xl text-bloodred1">Donor Appliaction</span>
+      </div>
+      <div className="px-5">
+      {step != 1 && (<div className="pb-5 flex items-center space-x-3" onClick={() => setStep(step - 1)}>
       <FeatherIcon icon="arrow-left" className="text-bloodred1" /> <span>{`Step ${step - 1}`}</span>
       </div>)}
-      <div>
+
         <div className="flex items-center pb-10 justify-around drop-shadow-md ">
           <span
             className={`${
@@ -153,6 +238,7 @@ function DonateBlood() {
                       type="radio"
                       name="step1q1"
                       value="yes"
+                      checked = {formData.step1q1 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -160,6 +246,7 @@ function DonateBlood() {
                       type="radio"
                       name="step1q1"
                       value="no"
+                      checked = {formData.step1q1 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -170,6 +257,7 @@ function DonateBlood() {
                   <input
                     type="text"
                     name="step1q2"
+                    value={formData.step1q2}
                     className="border-2 w-full"
                     onChange={handleChange}
                   />
@@ -184,6 +272,7 @@ function DonateBlood() {
                       type="radio"
                       name="step1q3"
                       value="yes"
+                      checked = {formData.step1q3 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -191,6 +280,7 @@ function DonateBlood() {
                       type="radio"
                       name="step1q3"
                       value="no"
+                      checked = {formData.step1q3 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -207,6 +297,7 @@ function DonateBlood() {
                       type="radio"
                       name="step1q4"
                       value="yes"
+                      checked = {formData.step1q4 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -214,6 +305,7 @@ function DonateBlood() {
                       type="radio"
                       name="step1q4"
                       value="no"
+                      checked = {formData.step1q4 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -233,6 +325,7 @@ function DonateBlood() {
                       type="radio"
                       name="step2q1"
                       value="yes"
+                      checked = {formData.step2q1 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -240,6 +333,7 @@ function DonateBlood() {
                       type="radio"
                       name="step2q1"
                       value="no"
+                      checked = {formData.step2q1 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -254,36 +348,36 @@ function DonateBlood() {
                     <div>
                       <input
                         type="checkbox"
-                        name="step2q2"
-                        value="yes"
-                        onChange={handleChange}
+                        name="heartDisease"
+                        checked = {formData.step2q2.heartDisease === true}
+                        onChange={handleCheckBoxes}
                       />
                       <span>Heart disease</span>
                     </div>
                     <div>
                       <input
                         type="checkbox"
-                        name="step2q2"
-                        value="no"
-                        onChange={handleChange}
+                        name="paralysis"
+                        checked = {formData.step2q2.paralysis === true}
+                        onChange={handleCheckBoxes}
                       />
                       <span>Paralysis</span>
                     </div>
                     <div>
                       <input
                         type="checkbox"
-                        name="step2q2"
-                        value="no"
-                        onChange={handleChange}
+                        name="diabetes"
+                        checked = {formData.step2q2.diabetes === true}
+                        onChange={handleCheckBoxes}
                       />
                       <span>Diabetes</span>
                     </div>
                     <div>
                       <input
                         type="checkbox"
-                        name="step2q2"
-                        value="no"
-                        onChange={handleChange}
+                        name="bloodDiseases"
+                        checked = {formData.step2q2.bloodDiseases === true}
+                        onChange={handleCheckBoxes}
                       />
                       <span>Blood diseases</span>
                     </div>
@@ -297,6 +391,7 @@ function DonateBlood() {
                       type="radio"
                       name="step2q3"
                       value="yes"
+                      checked = {formData.step2q3 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -304,6 +399,7 @@ function DonateBlood() {
                       type="radio"
                       name="step2q3"
                       value="no"
+                      checked = {formData.step2q3 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -317,6 +413,7 @@ function DonateBlood() {
                       type="radio"
                       name="step2q4"
                       value="yes"
+                      checked = {formData.step2q4 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -324,6 +421,7 @@ function DonateBlood() {
                       type="radio"
                       name="step2q4"
                       value="no"
+                      checked = {formData.step2q4 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -341,6 +439,7 @@ function DonateBlood() {
                       type="radio"
                       name="step2q5"
                       value="yes"
+                      checked = {formData.step2q5 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -348,6 +447,7 @@ function DonateBlood() {
                       type="radio"
                       name="step2q5"
                       value="no"
+                      checked = {formData.step2q5 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -361,6 +461,7 @@ function DonateBlood() {
                       type="radio"
                       name="step2q6"
                       value="yes"
+                      checked = {formData.step2q6 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -368,6 +469,7 @@ function DonateBlood() {
                       type="radio"
                       name="step2q6"
                       value="no"
+                      checked = {formData.step2q6 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -387,6 +489,7 @@ function DonateBlood() {
                       type="radio"
                       name="step3q1"
                       value="yes"
+                      checked = {formData.step3q1 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -394,6 +497,7 @@ function DonateBlood() {
                       type="radio"
                       name="step3q1"
                       value="no"
+                      checked = {formData.step3q1 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -409,6 +513,7 @@ function DonateBlood() {
                       type="radio"
                       name="step3q2"
                       value="yes"
+                      checked = {formData.step3q2 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -416,6 +521,7 @@ function DonateBlood() {
                       type="radio"
                       name="step3q2"
                       value="no"
+                      checked = {formData.step3q2 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -438,6 +544,7 @@ function DonateBlood() {
                       type="radio"
                       name="step4q1"
                       value="yes"
+                      checked = {formData.step4q1 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -445,6 +552,7 @@ function DonateBlood() {
                       type="radio"
                       name="step4q1"
                       value="no"
+                      checked = {formData.step4q1 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -460,6 +568,7 @@ function DonateBlood() {
                       type="radio"
                       name="step4q2"
                       value="yes"
+                      checked = {formData.step4q2 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -467,6 +576,7 @@ function DonateBlood() {
                       type="radio"
                       name="step4q2"
                       value="no"
+                      checked = {formData.step4q2 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -480,6 +590,7 @@ function DonateBlood() {
                       type="radio"
                       name="step4q3"
                       value="yes"
+                      checked = {formData.step4q3 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -487,6 +598,7 @@ function DonateBlood() {
                       type="radio"
                       name="step4q3"
                       value="no"
+                      checked = {formData.step4q3 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -500,6 +612,7 @@ function DonateBlood() {
                       type="radio"
                       name="step4q4"
                       value="yes"
+                      checked = {formData.step4q4 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -507,6 +620,7 @@ function DonateBlood() {
                       type="radio"
                       name="step4q4"
                       value="no"
+                      checked = {formData.step4q4 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -529,6 +643,7 @@ function DonateBlood() {
                       type="radio"
                       name="step5q1"
                       value="yes"
+                      checked = {formData.step5q1 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -536,6 +651,7 @@ function DonateBlood() {
                       type="radio"
                       name="step5q1"
                       value="no"
+                      checked = {formData.step5q1 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -553,6 +669,7 @@ function DonateBlood() {
                       type="radio"
                       name="step5q2"
                       value="yes"
+                      checked = {formData.step5q2 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -560,6 +677,7 @@ function DonateBlood() {
                       type="radio"
                       name="step5q2"
                       value="no"
+                      checked = {formData.step5q2 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -575,6 +693,7 @@ function DonateBlood() {
                       type="radio"
                       name="step5q3"
                       value="yes"
+                      checked = {formData.step5q3 === "yes"}                      
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -582,6 +701,7 @@ function DonateBlood() {
                       type="radio"
                       name="step5q3"
                       value="no"
+                      checked = {formData.step5q3 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -598,6 +718,7 @@ function DonateBlood() {
                       type="radio"
                       name="step5q4"
                       value="yes"
+                      checked = {formData.step5q4 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -605,6 +726,7 @@ function DonateBlood() {
                       type="radio"
                       name="step5q4"
                       value="no"
+                      checked = {formData.step5q4 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -652,6 +774,7 @@ function DonateBlood() {
                       type="radio"
                       name="step6q1"
                       value="yes"
+                      checked = {formData.step6q1 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -659,6 +782,7 @@ function DonateBlood() {
                       type="radio"
                       name="step6q1"
                       value="no"
+                      checked = {formData.step6q1 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -675,6 +799,7 @@ function DonateBlood() {
                       type="radio"
                       name="step6q2"
                       value="yes"
+                      checked = {formData.step6q2 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -682,6 +807,7 @@ function DonateBlood() {
                       type="radio"
                       name="step6q2"
                       value="no"
+                      checked = {formData.step6q2 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -698,6 +824,7 @@ function DonateBlood() {
                       type="radio"
                       name="step6q3"
                       value="yes"
+                      checked = {formData.step6q3 === "yes"}
                       onChange={handleChange}
                     />
                     <span>Yes</span>
@@ -705,6 +832,7 @@ function DonateBlood() {
                       type="radio"
                       name="step6q3"
                       value="no"
+                      checked = {formData.step6q3 === "no"}
                       onChange={handleChange}
                     />
                     <span>No</span>
@@ -725,7 +853,7 @@ function DonateBlood() {
               </button>
               <button
                 disabled={step === 6}
-                onClick={() => setStep(step + 1)}
+                onClick={handleNext}
                 className="bg-bloodred1 text-white p-2 px-5 w-full ml-5 rounded-xl"
               >
                 Next

@@ -25,14 +25,14 @@ function DashNav(props) {
 
       <div className="dash-nav py-5 w-full">
         <div className="flex w-full justify-between space-x-3">
-          <div className={`flex justify-start items-center`}>
+          <div className={`flex pl-5 items-center`}>
             <img src={props.imgSrc} className="w-10" />
             <p className="text-2xl">&nbsp;{props.greetingMsg}</p>
           </div>
-          <div className="w-[70%]">
+          {/* <div className="w-[70%]">
             <SearchBar />
-          </div>
-          <div className="space-x-5">
+          </div> */}
+          <div className="space-x-5 pr-5">
             <div className="dropdown dropdown-end">
               <div
                 tabIndex={0}

@@ -1,8 +1,22 @@
+import axios from "axios";
 import FeatherIcon from "feather-icons-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 function DashHome() {
-    
+  const userId = JSON.parse(localStorage.getItem("userId"));
+  const [userData, setUserData] = useState({});
+
+  useEffect(() => {
+    axios.get(`http://localhost:5000/donor/getDonorDashDetails/${userId}`)
+    .then((response) => {
+        console.log(response.data);
+        setUserData(response.data);
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+  }, []);
   return (
     <>
       <div className="w-full pt-5">
@@ -11,7 +25,7 @@ function DashHome() {
             <div className="bg-white  drop-shadow-lg rounded-xl p-2">
               <div className="grid grid-cols-2">
                 <div className="flex justify-start items-center px-3 text-bloodred3 font-semibold text-5xl">
-                  {20}
+                  {userData.DonationData}
                 </div>
                 <span className="flex items-center">Blood Donation count</span>
               </div>
@@ -20,7 +34,7 @@ function DashHome() {
           <div className="bg-white  drop-shadow-lg rounded-xl p-2">
             <div className="grid grid-cols-2">
               <div className="flex justify-start items-center px-3 text-bloodred3 font-semibold text-5xl">
-                {"O+"}
+                {userData.BloodGroup}
               </div>
               <span className="flex items-center">Your Blood Group</span>
             </div>
@@ -29,7 +43,7 @@ function DashHome() {
             <div className="grid grid-cols-2">
               <div>
                 <div className="flex justify-start items-center px-3 text-bloodred3 font-semibold text-5xl">
-                  {74}
+                  {userData.DateToNextDonate}
                 </div>
                 <span className="flex justify-start px-3">Days</span>
               </div>
@@ -40,7 +54,7 @@ function DashHome() {
             <Link to="/user/dash/req">
             <div className="grid grid-cols-2 h-full">
               <div className="flex justify-start items-center px-3 text-bloodred3 font-semibold text-5xl">
-                {5}
+                {userData.DonationRequest}
               </div>
               <span className="flex items-center">Requests</span>
             </div>
