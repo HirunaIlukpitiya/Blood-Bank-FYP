@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import DashNav from "./DashNav";
-import DashSideBar from "./sideBar";
+import DashSideBar from "./SideBar";
 import morning from "../assets/image/morning.png";
 import afternoon from "../assets/image/afternoon.png";
 import evening from "../assets/image/evening.png";

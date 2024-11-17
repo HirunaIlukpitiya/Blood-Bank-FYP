@@ -201,7 +201,7 @@ const donorSchema = mongoose.Schema(
     },
     QRcode: {
       type: String,
-      required: true,
+      required: false,
     },
     Frequency: {
       default: "4",

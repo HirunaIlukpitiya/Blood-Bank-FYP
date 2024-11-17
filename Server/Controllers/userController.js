@@ -53,6 +53,7 @@ const UserController = {
 
   userActivateTokenValidate: async (req, res) => {
     const { Email, token } = req.params;
+    console.log(Email, token);
     try {
       const user = await User.findOne({
         Email,

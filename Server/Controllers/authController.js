@@ -20,9 +20,6 @@ const authController = {
         return res.status(400).json({ msg: "User Already Exists" });
       }
 
-      const qrCodeData = JSON.stringify({NIC: NIC, Email: Email});
-      const QRcode = await QRCode.toDataURL(qrCodeData);
-
       await new Doner({
         FirstName,
         LastName,
@@ -33,8 +30,15 @@ const authController = {
         BloodGroup,
         Phone,
         Email,
-        QRcode
       }).save();
+
+      const savedDonor = await Doner.findOne({Email})
+      const donorId = savedDonor._id;
+      const qrCodeData = JSON.stringify({donorId});
+      const QRcode = await QRCode.toDataURL(qrCodeData);
+
+      savedDonor.QRCode = QRcode;
+      await savedDonor.save();
 
       const token = activationTokenGenerator(Email, "15m");
       await activationEmail({
@@ -141,6 +145,7 @@ const authController = {
 
   donorActivationTokenValidate: async (req, res) => {
     const { Email, token } = req.params;
+    console.log(Email, token);
     try {
       let user = await Doner.findOne({ Email });
       if (!user) {

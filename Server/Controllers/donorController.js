@@ -1,6 +1,6 @@
 const { get } = require("mongoose");
 const Donor = require("../Models/donor");
-const DonorApplication = require("../models/donorApplications");
+const DonorApplication = require("../Models/donorApplications");
 const { eligibilityCal, dateToNextDonate } = require("../utils");
 
 const donorController = {
