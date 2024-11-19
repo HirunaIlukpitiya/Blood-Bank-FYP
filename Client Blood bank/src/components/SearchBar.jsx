@@ -5,7 +5,7 @@ function SearchBar(props) {
   const handleSubmit = props.handleSubmit;
   const placeholderText = props.placeholderText;
   return (
-    <div className="text-Ash font-poppins w-full">
+    <div className="text-Ash font-poppins w-[80%]">
       <form onSubmit={handleSubmit}>
         <div className="relative">
           <button type="submit">

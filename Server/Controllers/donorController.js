@@ -17,7 +17,7 @@ const donorController = {
   getDonor: async (req, res) => {
     try {
       let donor;
-      if (!req.params.id) {
+      if (req.params.id === "null") {
         donor = await Donor.findOne({Email: req.params.Email});
       } else {
         donor = await Donor.findById(req.params.id)
@@ -54,14 +54,37 @@ const donorController = {
 
   getDonorApplication: async (req, res) => {
     try {
-      let donorApplication = [];
-      if (req.params.Email) {
-        donorApplication = await DonorApplication.findOne({Email : req.params.Email});
+      let donorApplication;
+      let userInfo = {};
+      if (req.params.Email !="null") {
+        console.log("param emsil ",req.params.Email);
+        const donor = await Donor.findOne({Email : req.params.Email})
+        console.log(donor)
+        if (donor) {
+          const donorId = donor._id;
+          userInfo = {
+            FirstName: donor.FirstName,
+            LastName: donor.LastName,
+          };
+          console.log("donor id ",donorId);
+
+          donorApplication = await DonorApplication.findOne({Id : donorId});
+        }
       } else {
-        donorApplication = await DonorApplication.findById(req.params.id);
+        console.log("param id " ,req.params.id);
+        const donor = await Donor.findById(req.params.id);
+        if (donor) {
+          userInfo = {
+            FirstName: donor.FirstName,
+            LastName: donor.LastName,
+          };
+          donorApplication = await DonorApplication.findOne({Id: req.params.id});
+        }
       }
-      
-      return res.status(200).json(donorApplication);
+      if (!donorApplication) {
+        return res.status(400).json({ message: "Donor Application not found" });
+      }
+      return res.status(200).json({donorApplication: donorApplication, userInfo: userInfo});
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Donor not found" });
@@ -96,6 +119,14 @@ const donorController = {
         step6q2,
         step6q3,
       } = req.body;
+      const existingDonorApplications = await DonorApplication.find({Id: Id});
+      if (existingDonorApplications.length > 0) {
+        for (const existingDonorApplication of existingDonorApplications) {
+          if (existingDonorApplication.status === "Pending") {
+            return res.status(400).json({ message: "Donor Application already exists" });
+          }
+        }
+      }
       const donorApplication = new DonorApplication({
         Id,
         step1q1,
@@ -224,6 +255,110 @@ const donorController = {
             console.log(error);
             res.status(500).json({message: "Donation Data not found"});
         }
+    },
+
+    updateDonorApplication : async (req,res) => {
+      try {
+        const type = req.params.type;
+        const officerId = req.params.userId;
+        
+        if (type == "tab1") {
+          const verified = req.body.verified;
+          const barCode = req.body.barCode;
+          const donorId = req.body.donorId;
+
+          const donorApplication = await DonorApplication.findOneAndUpdate(
+            {Id: donorId},
+            {$set: {      
+              'registrationData.verified': verified,
+              'registrationData.barCode': barCode,
+              'registrationData.officerId': officerId,
+            }},
+            {new: true}
+          );
+          console.log(donorApplication)
+          if (!donorApplication) {
+            return res.status(400).json({message: "Donor Application not found"});
+          }
+          return res.status(200).json({message: "Donor Application Updated Successfully"});
+        }
+        if (type == "tab2") {
+          const CVS = req.body.CVS;
+          const BP = req.body.BP;
+          const donorId = req.body.donorId;
+          const Remark = req.body.Remark;
+          const OutCome = req.body.OutCome;
+          const RemarkToDeferral = req.body.RemarkToDeferral;
+
+          let donorApplication = await DonorApplication.findOneAndUpdate(
+            {Id: donorId},
+            {$set: {      
+              "medicalAssessment.CVS": CVS,
+              "medicalAssessment.BP": BP,
+              "medicalAssessment.Remark": Remark,
+              "medicalAssessment.OutCome": OutCome,
+              "medicalAssessment.RemarkToDeferral": RemarkToDeferral,
+              "medicalAssessment.officerId": officerId,
+
+            }},
+            {new: true}
+          );
+
+          if (OutCome == "tempDeferral" || OutCome == "permDeferral") {
+            donorApplication = await DonorApplication.findOneAndUpdate(
+              {Id: donorId},
+              {$set: {status: "Rejected"}},
+              {new: true}
+            )
+          }
+
+          console.log(donorApplication)
+          if (!donorApplication) {
+            return res.status(400).json({message: "Donor Application not found"});
+          }
+          return res.status(200).json({message: "Donor Application Updated Successfully"});
+        }
+
+        if (type == "tab3") {
+          const HbLevel = req.body.HbLevel;
+          const donorId = req.body.donorId;
+          const BagType = req.body.BagType;
+
+          let donorApplication = await DonorApplication.findOneAndUpdate(
+            {Id: donorId},
+            {$set: {      
+              "HbandBagType.HbLevel": HbLevel,
+              "HbandBagType.BagType": BagType,
+              "HbandBagType.officerId": officerId,
+            }},
+            {new: true}
+          );
+
+          if (donorApplication.medicalAssessment.OutCome === "moreThan" && HbLevel === "lessThan") {
+            donorApplication = await DonorApplication.findOneAndUpdate(
+              {Id: donorId},
+              {$set: {status: "Rejected"}},
+              {new: true}
+            )
+          } else {
+            donorApplication = await DonorApplication.findOneAndUpdate(
+              {Id: donorId},
+              {$set: {status: "Approved"}},
+              {new: true}
+            )
+          }
+
+          console.log(donorApplication)
+          if (!donorApplication) {
+            return res.status(400).json({message: "Donor Application not found"});
+          }
+          return res.status(200).json({message: "Donor Application Updated Successfully"});
+        }
+
+      } catch (error) {
+        console.log(error)
+        res.status(500).json({message: "Cannot Save data"})
+      }
     }
 
 

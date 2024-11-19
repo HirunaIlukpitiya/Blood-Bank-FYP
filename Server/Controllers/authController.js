@@ -32,13 +32,32 @@ const authController = {
         Email,
       }).save();
 
-      const savedDonor = await Doner.findOne({Email})
+      
+      const savedDonor = await Doner.findOne({ Email });
+      console.log('Saved Donor:', savedDonor);
+      
+      if (!savedDonor) {
+        console.error('Donor not found');
+        return res.status(404).send('Donor not found');
+      }
+      
       const donorId = savedDonor._id;
-      const qrCodeData = JSON.stringify({donorId});
+      const qrCodeData = JSON.stringify({ donorId });
       const QRcode = await QRCode.toDataURL(qrCodeData);
-
-      savedDonor.QRCode = QRcode;
-      await savedDonor.save();
+      console.log('Generated QR Code:', QRcode);
+      
+      const updatedDonor = await Doner.findOneAndUpdate(
+        { Email },
+        { $set: { QRcode: QRcode } },
+        { new: true }
+      );
+      
+      if (!updatedDonor) {
+        console.error('Failed to update donor');
+        return res.status(500).send('Failed to update donor');
+      }
+      
+      console.log('Updated Donor:', updatedDonor);      
 
       const token = activationTokenGenerator(Email, "15m");
       await activationEmail({
@@ -119,6 +138,7 @@ const authController = {
   bloodBankLogin: async (req, res) => {
     const { Email, Password } = req.body;
     try {
+      let userInfo;
       if (!Email || !Password) {
         return res.status(400).json({ message: "Please fill all the fields" });
       }
@@ -129,14 +149,22 @@ const authController = {
           return res.status(400).json({ message: "User Not Found" });
         }
       }
+
       const passwordMatch = await bcrypt.compare(Password, userExsist.Password);
       if (!passwordMatch) {
         return res.status(400).json({ message: "Invalid Credential" });
       }
+      if (userExsist) {
+        userInfo = {
+          userId: userExsist._id,
+          RoleId: userExsist.RoleId,
+          AccountType: userExsist.AccountType
+        }
+      }
       const token = JWTcreate.tokenGenerator(userExsist._id);
       return res
         .status(200)
-        .json({ message: "User loggin successfull", token: token, user: userExsist});
+        .json({ message: "User loggin successfull", token: token, user: userInfo});
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "SignIn Failed" });

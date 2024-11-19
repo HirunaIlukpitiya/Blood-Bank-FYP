@@ -200,6 +200,7 @@ const donorSchema = mongoose.Schema(
       required: true,
     },
     QRcode: {
+      default: "",
       type: String,
       required: false,
     },
