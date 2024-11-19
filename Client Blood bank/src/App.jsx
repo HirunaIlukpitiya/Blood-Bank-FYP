@@ -22,6 +22,9 @@ import DonorProfile from './components/DonorProfile'
 import AddUser from './components/AddUser'
 import Users from './components/Users'
 import Logout from './context/overlays/Logout'
+import CurrentStock from './components/currentStock'
+import DemandPrediction from './components/demandPrediction'
+import StockSettings from './components/stockSettings'
 
 function App() {
 
@@ -36,7 +39,12 @@ function App() {
       <Route path="*" element={<h1 className='flex justify-center items-center text-bloodred3 text-5xl h-screen'>{"404 Page Not Found :("}</h1>} />
       <Route path="/user/dash" element={<DashLayout />} >
         <Route index element={<Navigate to = 'stocks'/>}/>
-        <Route path='stocks' element={<Stockmoniter/>}/>
+        <Route path='stocks' element={<Stockmoniter/>}>
+          <Route index element={<Navigate to = 'liveStock'/>}/>
+          <Route path='liveStock' element={<CurrentStock/>}/>
+          <Route path='AiPrediction' element={<DemandPrediction/>}/>
+          <Route path='stockSettings' element={<StockSettings/>}/>
+        </Route>
         <Route path='donor' element={<DonorManage/>}>
           <Route index element={<Navigate to = 'register'/>}/>
           <Route path='register' element={<DonerRegister/>}/>

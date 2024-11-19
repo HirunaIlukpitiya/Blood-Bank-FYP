@@ -17,11 +17,14 @@ const authRoute = require("./Routes/authRoute");
 const protectedRoute = require("./Routes/protectedRoute");
 const userRoute = require("./Routes/userRoute");
 const donorRoute = require("./Routes/donorRoute");
+const stockDataRoute = require("./Routes/stockDataRoute");
 
 app.use("/donor",donorRoute);
 app.use("/user",userRoute);
 app.use("/auth",authRoute);
 app.use("/protected", protectedRoute);
+app.use("/stockData", stockDataRoute);
+
 
 mongoose.connect(url)
 .then(() => console.log("MongoDB is connected..."))
