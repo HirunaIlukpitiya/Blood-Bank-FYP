@@ -33,22 +33,57 @@ function CurrentStock() {
         ONegativeRBC: 0
     })
 
+    const [showModal, setShowModal] = useState(false);
+    const [newStockData, setNewStockData] = useState(stockData);
+
     useEffect(() => {
         axios.get(`http://localhost:5000/stockData/getStockData/${bloodbankId}`)
         .then ((response) => {
-            console.log(response.data)
-            setStockData(response.data)
+                        setStockData(response.data);
+                    
         })
         .catch ((error) => {
             console.log(error)
             toast.error(error.response.data.message, {
                 position: "bottom-right",
             })
+            if (error.response.data.message === "Stock data not found") {
+                setShowModal(true);
+            }
+
         })
         .finally (() => {
 
         })
     }, []);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewStockData({ ...newStockData, [name]: value });
+    };
+
+    const handleSubmit = () => {
+        let data = newStockData;
+        data = {...data, bloodBankId: bloodbankId};
+        axios.post(`http://localhost:5000/stockData/addStockData/`, data)
+        .then((response) => {
+            setStockData(newStockData);
+            setShowModal(false);
+            toast.success("Stock data added successfully", {
+                position: "bottom-right",
+            });
+        })
+        .catch((error) => {
+            console.log(error);
+            toast.error(error.response.data.message, {
+                position: "bottom-right",
+            });
+        });
+    };
+
+//     useEffect(() => {
+//         axios.get(`http://localhost:5000/stockData/getStockData/${bloodbankId}`)
+//     }, [stockData]);
 
 
 return (
@@ -233,6 +268,39 @@ return (
                                     </div>
                             </div>
                     </div>
+                    {showModal && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-6">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-full overflow-y-auto">
+        <h2 className="text-xl font-semibold mb-4">Add Stock Data</h2>
+        {Object.keys(stockData).map((key) => (
+            <div key={key} className="mb-4">
+                <label className="block text-gray-700">{key}</label>
+                <input
+                    type="number"
+                    name={key}
+                    value={newStockData[key]}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+            </div>
+        ))}
+        <div className="flex justify-end">
+            <button
+                onClick={() => setShowModal(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
+            >
+                Cancel
+            </button>
+            <button
+                onClick={handleSubmit}
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+                Submit
+            </button>
+        </div>
+    </div>
+</div>
+            )}
             </div>
     </>
 );

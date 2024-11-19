@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const stockDataSchema = mongoose.Schema(
     {
-        bloodbankId: {
+        bloodBankId: {
             type: String,
             required: true,
         },
