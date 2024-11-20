@@ -29,8 +29,17 @@ function Request() {
         hideSpinner();
       });
   }, []);
-  const viewRequest = () => {
+  const viewRequest = (req) => {
     showReqView();
+    if (req.ReadStatus == "unread") {
+      axios.put(`http://localhost:5000/donor/updateReadStatus/${req._id}/${userId}`)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    }
   };
   const handleConfirm = () => {
     hideReqView();
@@ -75,7 +84,7 @@ function Request() {
                           <FeatherIcon
                             icon="eye"
                             className="ml-2 w-5 opacity-50"
-                            onClick={viewRequest}
+                            onClick={()=>viewRequest(request)}
                           />
                           <FeatherIcon
                             icon="trash-2"

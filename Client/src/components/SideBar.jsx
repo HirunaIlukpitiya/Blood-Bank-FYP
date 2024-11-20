@@ -1,6 +1,8 @@
 import FeatherIcon from "feather-icons-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import imageSrc from "../assets/image/logo.png";
+import packageJson from '../../package.json';
 
 function SideBar(props) {
   const sideBarToggled = props.sideBarToggled;
@@ -18,7 +20,7 @@ function SideBar(props) {
                 <FeatherIcon icon="x" />
               </button>
             </div>
-            <img src="" />
+            <img src={imageSrc} className="w-32"/>
 
             <div className="space-y-6">
               <div className=" hover:bg-bloodred6 rounded-xl animate-fade-up">
@@ -56,7 +58,7 @@ function SideBar(props) {
             </div>
             </div>
             <div className="flex justify-center">
-              <p>Version Number</p>
+            <p>Version: {packageJson.version}</p>
             </div>
           </div>
         </div>

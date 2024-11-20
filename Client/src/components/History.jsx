@@ -38,11 +38,11 @@ function History() {
             {donationHistory.map((donation, index) => {
               return (
                 <tr className="hover:bg-bloodred3/10" key={index}>
-                  <td className="border px-4 py-2">{donation.Date}</td>
+                  <td className="border px-4 py-2">{donation.DonatedDate}</td>
                   <td className="border px-4 py-2">
                     {donation.DonationNumber}
                   </td>
-                  <td className="border px-4 py-2">{donation.Location}</td>
+                  <td className="border px-4 py-2">{donation.DonatedLocation}</td>
                 </tr>
               );
             })}

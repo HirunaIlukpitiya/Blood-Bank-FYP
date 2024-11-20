@@ -34,8 +34,9 @@ const donorController = {
     try {
       const donor = await Donor.findById(req.params.id);
 
-      const unreadCount = donor.DonationRequest.filter((request) => request.status === "unread").length;
-      const dateLeft = dateToNextDonate(donor.LastDonationDate, donor.Frequency);
+      const unreadCount = donor.DonationRequest.filter((request) => request.ReadStatus === "unread").length;
+      const dateLeft = dateToNextDonate(donor.LastDonatedDate, donor.Frequency);
+      console.log(dateLeft);
       const details = {
         DonationRequest : unreadCount,
         DateToNextDonate : dateLeft,
@@ -68,7 +69,7 @@ const donorController = {
           };
           console.log("donor id ",donorId);
 
-          donorApplication = await DonorApplication.findOne({Id : donorId});
+          donorApplication = await DonorApplication.findOne({Id: donorId, status: "Pending" });
         }
       } else {
         console.log("param id " ,req.params.id);
@@ -195,11 +196,12 @@ const donorController = {
         await reqCreater.save();
 
         for (const donor of donors) {
-            const eligibility = eligibilityCal(donor.LastDonationDate, donor.Frequency);
+            const eligibility = eligibilityCal(donor.LastDonatedDate, donor.Frequency);
             console.log(eligibility);
-            if(donor._id = Id){
+            if(donor._id == Id){
                 continue;
-            } else if(eligibility) {
+            }
+            if(eligibility) {
             donor.DonationRequest.push(donationRequest);
             await donor.save();
             }
@@ -346,6 +348,17 @@ const donorController = {
               {$set: {status: "Approved"}},
               {new: true}
             )
+
+            const bloodDonor = await Donor.findById(donorId);
+            const donationData = {
+              DonatedDate: new Date().toISOString(),
+              DonatedLocation : "Kosgama",
+              DonationNumber : donorApplication.registrationData.barCode,
+            };
+            bloodDonor.DonationData.push(donationData);
+            bloodDonor.LastDonatedDate = new Date().toISOString();
+            await bloodDonor.save();
+
           }
 
           console.log(donorApplication)
@@ -358,6 +371,21 @@ const donorController = {
       } catch (error) {
         console.log(error)
         res.status(500).json({message: "Cannot Save data"})
+      }
+    },
+
+    updateReadStatus : async (req, res) => {
+      try {
+        const donorId = req.params.donorId;
+        const requestId = req.params.requestId;
+        const donor = await Donor.findById(donorId);
+        const request = donor.DonationRequest.id(requestId);
+        request.ReadStatus = "read";
+        await donor.save();
+        return res.status(200).json({message: "Read Status Updated Successfully"});
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Cannot Update Read Status"});
       }
     }
 

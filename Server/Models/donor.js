@@ -22,7 +22,7 @@ const donationDataSchema = mongoose.Schema(
 
 const donationRequestSchema = mongoose.Schema(
   {
-    Email : {
+    Id : {
       type: String,
       required: true,
     },

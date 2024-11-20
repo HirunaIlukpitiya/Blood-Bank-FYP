@@ -4,14 +4,14 @@ import { useEffect, useState } from "react";
 import { useOverlay } from "../context/overlayContext";
 
 function MakeRequest(){
-    const user = JSON.parse(localStorage.getItem("user"));
+    const userId = JSON.parse(localStorage.getItem("userId"));
     const { showSpinner, hideSpinner } = useOverlay();
     const today = new Date().toISOString().slice(0, 16);
-    const [formData, setFormData] = useState({ Email: user.Email });
+    const [formData, setFormData] = useState({ Id: userId });
   
     useEffect(() => {
-      setFormData((prevFormData) => ({ ...prevFormData, Email: user.Email }));
-    }, [user.Email]);
+      setFormData((prevFormData) => ({ ...prevFormData, Id: userId }));
+    }, [userId]);
   
     const handleChange = (e) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,13 +19,13 @@ function MakeRequest(){
   
     const handleSubmit = () => {
       showSpinner();
-      const updatedFormData = { ...formData, Email: user.Email };
+      const updatedFormData = { ...formData, Id: userId };
       console.log(updatedFormData);
       axios
         .post(`http://localhost:5000/donor/findDonor`, updatedFormData)
         .then((response) => {
           console.log(response);
-          setFormData({ Email: user.Email });
+          setFormData({ Id: userId });
           toast.success(response.data.message, {
             position: "bottom-right",
           });

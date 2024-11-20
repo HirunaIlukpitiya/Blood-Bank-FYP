@@ -239,9 +239,15 @@ function DonerApprove() {
       .put(`http://localhost:5000/donor/updateDonorApplication/${user.userId}/${value}`, data)
       .then((response) => {
         console.log(response);
+        toast.success("Data saved successfully", {
+          position: "bottom-right",
+        })
       })
       .catch((error) => {
         console.log(error);
+        toast.error(error.response.data.message, {
+          position: "bottom-right",
+        })
       })
       .finally(() => {});
   };

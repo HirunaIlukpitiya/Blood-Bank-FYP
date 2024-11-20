@@ -10,6 +10,7 @@ const JWTcreate = require("../Config/jwtService");
 const UserController = {
   addUser: async (req, res) => {
     const {
+      bloodBankId,
       FirstName,
       NIC,
       LastName,
@@ -34,6 +35,7 @@ const UserController = {
       
 
       user = new User({
+        bloodBankId,
         FirstName,
         NIC,
         LastName,
@@ -103,6 +105,20 @@ const UserController = {
         } catch (error) {
             console.log(error);
             res.status(500).json({ message: "User activation failed" });
+        }
+    },
+
+    getUserByBloodBankId : async (req, res) => {
+        const { bloodBankId } = req.params;
+        try {
+            const users = await User.find(bloodBankId);
+            if (users.length == 0) {
+                return res.status(404).json({ message: "User not found" });
+            }
+            return res.status(200).json(users);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: "Failed to get user" });
         }
     },
 };

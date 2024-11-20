@@ -30,6 +30,7 @@ const authController = {
         BloodGroup,
         Phone,
         Email,
+        LastDonatedDate: new Date(),
       }).save();
 
       
@@ -155,10 +156,19 @@ const authController = {
         return res.status(400).json({ message: "Invalid Credential" });
       }
       if (userExsist) {
-        userInfo = {
-          userId: userExsist._id,
-          RoleId: userExsist.RoleId,
-          AccountType: userExsist.AccountType
+        if (userExsist.RoleId != "2") {
+          userInfo = {
+            userId: userExsist._id,
+            RoleId: userExsist.RoleId,
+            AccountType: userExsist.AccountType,
+            bloodBankId: userExsist.bloodBankId,
+          }
+        } else {
+          userInfo = {
+            bloodBankId: userExsist._id,
+            RoleId: userExsist.RoleId,
+            AccountType: userExsist.AccountType,
+          }
         }
       }
       const token = JWTcreate.tokenGenerator(userExsist._id);

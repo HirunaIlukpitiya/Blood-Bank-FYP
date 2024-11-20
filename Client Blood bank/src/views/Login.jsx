@@ -31,7 +31,7 @@ function Login() {
             localStorage.setItem("user", JSON.stringify(response.data.user));
             setTimeout(() => {
                 navigate("/user/dash");
-            }, 1000);
+            }, 500);
         })
         .catch((err) => {
             console.log(err);

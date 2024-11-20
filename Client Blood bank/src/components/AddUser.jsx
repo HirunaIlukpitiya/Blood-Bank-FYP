@@ -6,6 +6,7 @@ import { useOverlay } from "../context/overlayContext";
 function AddUser() {
     const {showSpinner, hideSpinner} = useOverlay();
     const [formData, setFormData] = useState({});
+    const bloodbankId = JSON.parse(localStorage.getItem("user")).bloodBankId;
 
 
     const handleChange = (e) => {
@@ -18,7 +19,10 @@ function AddUser() {
   const handleSubmit = () => {
     showSpinner();
     console.log(formData);
-    axios.post("http://localhost:5000/user/addUser", formData)
+    let data = formData;
+    data = {...data, bloodBankId: bloodbankId};
+    console.log(data);
+    axios.post("http://localhost:5000/user/addUser", data)
     .then((response) => {
       console.log(response);
       toast.success(response.data.message, {

@@ -3,7 +3,7 @@ from flask_cors import CORS
 from predictData import predict_blood_demand
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all origins
+CORS(app)
 
 @app.route('/predict', methods=['POST'])
 def predict():
